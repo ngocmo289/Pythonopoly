@@ -1,0 +1,384 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+#container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+}
+
+#popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 900px;
+    height: 400px;
+    transform: translate(-50%, -50%);
+    background-color: antiquewhite;
+    border: 5px solid rgb(0, 255, 0);
+    /* Đường viền 2px màu trắng trong suốt */
+    padding: 20px;
+    background-size: initial;
+    background-position: center;
+    z-index: 1;
+}
+
+
+.popup-content {
+    width: 100%;
+    height: 80%;
+    text-align: left;
+    color: black;
+    font-size: 30px;
+}
+
+#popup button {
+    position: absolute;
+    height: 40px;
+    margin-top: 20px;
+    width: 100px;
+    background-color: #00fc37;
+    left: 50%;
+    transform: translate(-50%, 0%);
+}
+
+
+.support {
+    display: grid;
+    position: absolute;
+    top: 50%;
+    transform: translate(0%, -50%);
+    z-index: 3;
+}
+
+.support button {
+    background-color: transparent;
+    /* Tắt màu nền của button */
+    border: 0;
+    width: 70px;
+    height: 70px;
+    background-position: center;
+    background-size: cover;
+    margin: 20px;
+}
+
+.support button:hover,
+#popup button:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+#rule {
+    background-image: url(../img/rule.png);
+}
+
+#replay {
+    background-image: url(../img/replay.png);
+}
+
+#sound {
+    background-image: url(../img/volume.png);
+}
+
+#gameboard {
+    display: flex;
+    flex-wrap: wrap;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1617px;
+    height: 880px;
+    transform: translate(-50%, -50%);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap');
+
+
+.waviy {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 60px;
+    -webkit-box-reflect: below -20px linear-gradient(transparent, rgba(0, 0, 0, .2));
+}
+
+.waviy span {
+    font-family: fantasy;
+    position: relative;
+    display: inline-block;
+    color: #fff;
+    text-transform: uppercase;
+    animation: waviy 1s infinite;
+    animation-delay: calc(.1s * var(--i));
+
+}
+
+@keyframes waviy {
+
+    0%,
+    40%,
+    100% {
+        transform: translateY(0)
+    }
+
+    20% {
+        transform: translateY(-20px)
+    }
+}
+
+.square {
+    height: 145px;
+    width: 145px;
+    margin: auto;
+    background-size: cover;
+    /* Đảm bảo hình ảnh kích thước đầy đủ trong phần tử */
+    background-position: center;
+    /* Căn giữa hình ảnh */
+    display: ruby;
+    text-align: center;
+}
+
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.player-image {
+    width: 100%;
+    /* Đặt kích thước cho hình ảnh */
+    height: 100%;
+    /* Đặt kích thước cho hình ảnh */
+    background-size: cover;
+    /* Đảm bảo hình ảnh đầy đủ kích thước trong phần tử */
+    margin-bottom: 5px;
+    /* Đặt khoảng cách giữa hình ảnh và tên người chơi */
+}
+
+#frame {
+    position: absolute;
+    height: 400px;
+    width: 1000px;
+    background-color: #283f57;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    display: flex;
+}
+
+/* #playButton {
+    position: absolute;
+    font-size: 30px;
+    top: 110%;
+    left: 50%;
+    padding: 10px 20px;
+    transform: translate(-50%, -50%);
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 2;
+} */
+
+#frame .NV {
+    height: 400px;
+    width: 250px;
+}
+
+.detailNV {
+    height: 300px;
+    width: 200px;
+    margin: auto;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(50%);
+    /* Độ sáng ban đầu của hình ảnh */
+    transition: filter 0.3s ease;
+    /* Thêm hiệu ứng chuyển đổi cho filter */
+}
+
+.detailNV:hover {
+    background-color: rgba(187, 187, 187, 0.76);
+    /* Điều chỉnh màu nền sáng hơn */
+    filter: brightness(100%);
+    /* Làm sáng hình ảnh khi hover */
+}
+
+.detailNV.brighten {
+    filter: brightness(100%);
+    /* Làm sáng hình ảnh khi có text nhập vào */
+    background-color: #4CAF50;
+    /* Đổi màu nền khi có text nhập vào */
+}
+
+
+#choose {
+    position: relative;
+    -webkit-box-reflect: below -20px linear-gradient(transparent, rgba(0, 0, 0, .2));
+    font-size: 60px;
+}
+
+input[type=text] {
+    width: 70%;
+    padding: 12px 20px;
+    margin: 29.5px 37.5px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type=submit] {
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    width: 10%;
+    transform: translate(-50%, -50%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.alert {
+    display: none;
+    /* Mặc định ẩn đi*/
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 9%);
+    padding: 20px;
+    color: white;
+    opacity: 1;
+    margin-bottom: 15px;
+}
+
+#rolldice {
+    display: flex;
+}
+
+.img1,
+.img2 {
+    width: 112px;
+    /* Đảm bảo rằng hình ảnh sẽ lấp đầy toàn bộ kích thước của div */
+    height: 112px;
+    /* Đảm bảo rằng hình ảnh sẽ lấp đầy toàn bộ kích thước của div */
+    src: url('../img/dice6.png');
+}
+
+.btn {
+    background: #4ecca3;
+    font-family: "Indie Flower", cursive;
+    border-radius: 7px;
+    color: #ffff;
+    font-size: 30px;
+    padding: 16px 25px 16px 25px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: #232931;
+    text-decoration: none;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+h1 {
+    margin: 10px;
+    font-family: "Lobster", cursive;
+    text-shadow: 5px 0 #232931;
+    font-size: 4.5rem;
+    color: #4ecca3;
+    text-align: center;
+}
+
+.totaldice {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+#rolldice {
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#quiz-form{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    z-index: 5;
+}
+
+#question {
+    margin-bottom: 20px;
+    background-color: #fff;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+}
+
+#question p {
+    text-align: center;
+    font-weight: bold;
+}
+
+
+#question:nth-child(odd) {
+    margin-right: 5%;
+}
+
+.answers {
+    margin-bottom: 20px;
+}
+
+.answers label:not(:first-child) {
+    border-top: 1px solid #e0e0e0;
+}
+
+label {
+    padding: 10px 0;
+    display: block;
+    margin-bottom: 10px;
+}
+
+input[type="radio"] {
+    margin-right: 10px;
+}
+
+input[type="radio"]::before {
+    content: attr(value);
+    margin-left: 20px;
+  }
+
+.submit-btn {
+    display: block;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    margin: auto;
+}

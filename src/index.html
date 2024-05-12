@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xin chào</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="container" style="background-image: url('../img/Pygame.png');">
+        <div id="popup">
+            <div class="popup-content">
+                <p></p>
+            </div>
+            <button id="closeButton">OK</button>
+        </div>
+        <div class="support">
+            <button id="rule" ></button>
+            <button id="replay" ></button>
+            <button id="sound" ></button>       
+        </div>
+        <div class="alert"></div>
+        <div id="gameboard">
+        </div>
+        <div class="totaldice">
+            <h1>hihihi</h1>
+            <div id="rolldice">
+                <img src="../img/dice6.png" alt="dice 6" class="img1">
+                <img src="../img/dice6.png" alt="dice 6" class="img2"> 
+            </div>
+            <button type="button" class="btn">
+                Roll The Dice</button>
+        </div>
+       
+        <div class="waviy">
+            <span style="--i:1">C</span>
+            <span style="--i:2">H</span>
+            <span style="--i:3">O</span>
+            <span style="--i:4">O</span>
+            <span style="--i:5">S</span>
+            <span style="--i:6">E</span>
+            <span style="--i:7"> </span>
+            <span style="--i:8">P</span>
+            <span style="--i:9">L</span>
+            <span style="--i:10">A</span>
+            <span style="--i:11">Y</span>
+            <span style="--i:12">E</span>
+            <span style="--i:13">R</span>
+        </div>
+
+        <form action="chooseNV" id="frame">
+            <div class="NV">
+                <div class="detailNV" style="background-image: url('../img/pl1.png');"></div>
+                <input type="text" class="fname" name="firstname" placeholder="Your name..">
+            </div>
+            <div class="NV">
+                <div class="detailNV" style="background-image: url('../img/pl2.png');"></div>
+                <input type="text" class="fname" name="firstname" placeholder="Your name..">
+            </div>
+            <div class="NV">
+                <div class="detailNV" style="background-image: url('../img/pl3.png');"></div>
+                <input type="text" class="fname" name="firstname" placeholder="Your name..">
+            </div>
+            <div class="NV">
+                <div class="detailNV" style="background-image: url('../img/pl4.png');"></div>
+                <input type="text" class="fname" name="firstname" placeholder="Your name..">
+            </div>
+        </form>
+        <input type="submit" id="playButton" value="PLAY">
+
+        <div id="quiz-form">
+            <div id="question">
+                <p></p>
+                <div class="answers">
+                    <label>
+                        <input type="radio" name="choice" id="choice1">
+                    </label>
+                    <label>
+                        <input type="radio" name="choice" id="choice2">
+                    </label>
+                    <label>
+                        <input type="radio" name="choice" id="choice3">
+                    </label>
+                    <label>
+                        <input type="radio" name="choice" id="choice4">
+                    </label>
+                </div>
+            </div>
+            <button type="button" class="submit-btn" onclick="showQuestion()">Submit Answer</button>        </div>
+    </div>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
