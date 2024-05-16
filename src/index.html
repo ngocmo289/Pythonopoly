@@ -70,26 +70,24 @@
         </form>
         <input type="submit" id="playButton" value="PLAY">
 
-        <div id="quiz-form">
-            <div id="question">
-                <p></p>
-                <div class="answers">
-                    <label>
-                        <input type="radio" name="choice" id="choice1">
-                    </label>
-                    <label>
-                        <input type="radio" name="choice" id="choice2">
-                    </label>
-                    <label>
-                        <input type="radio" name="choice" id="choice3">
-                    </label>
-                    <label>
-                        <input type="radio" name="choice" id="choice4">
-                    </label>
+        <div class = "wrapper">
+            <div class = "quiz-container">
+                <div class = "quiz-body">
+                    <h2 class = "quiz-question" id = "question"><!--What is the full form of HTTP? --></h2>
+                    <ul class = "quiz-options">
+                        <!-- <li>1. Hyper text transfer package</li>
+                        <li>2. Hyper text transfer protocol</li>
+                        <li>3. Hyphenation text test program</li>
+                        <li>4. None of the above</li> -->
+                    </ul>
+                    <div id = "result">
+                    </div>
+                </div>
+                <div class = "quiz-foot">
+                    <button type = "button" id = "check-answer">Check Answer</button>
                 </div>
             </div>
-            <button type="button" class="submit-btn" onclick="showQuestion()">Submit Answer</button>        </div>
-    </div>
+        </div>
 
     <script src="app.js"></script>
 

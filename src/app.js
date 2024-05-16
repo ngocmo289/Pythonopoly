@@ -199,7 +199,7 @@ function settextpopup(text) {
 }
 
 rule.addEventListener("click", function () {
-    var text = "<p>Trò chơi này giúp bạn học về ngôn ngữ lập trình Python. <br><br>Mọi người đứng ở ô bắt đầu và quay súc sắc để di chuyển. <br>Trước mỗi lần di chuyển, bạn phải trả lời một câu hỏi về Python. <br>Nếu trả lời sai, bạn mất lượt và phải chờ lượt tiếp theo. Nếu trả lời đúng, bạn được quay súc sắc và tiếp tục di chuyển. <br><br>Lưu ý: Ở ô đầu tiên, bạn được quay mà không cần trả lời câu hỏi. <br><br>Chúc các bạn học tập vui vẻ !</p>";
+    var text = "<p>Trò chơi này giúp bạn học về ngôn ngữ lập trình Python. <br><br>Mọi người đứng ở ô bắt đầu và quay xúc xắc để di chuyển. <br>Trước mỗi lần di chuyển, bạn phải trả lời một câu hỏi về Python. <br>Nếu trả lời sai, bạn mất lượt và phải chờ lượt tiếp theo. Nếu trả lời đúng, bạn được quay xúc xắc và tiếp tục di chuyển. <br><br>Lưu ý: Ở ô đầu tiên, bạn được quay mà không cần trả lời câu hỏi. <br><br>Chúc các bạn học tập vui vẻ !</p>";
     settextpopup(text);
 });
 
@@ -214,36 +214,12 @@ replay.addEventListener("click", function () {
 
     // Nếu người chơi xác nhận (OK)
     if (confirmed) {
-        // Thực hiện các hành động cần thiết để bắt đầu lại trò chơi
-        // Ví dụ: Gọi hàm resetGame() để reset trò chơi
-        resetGame();
+        location.reload(); // Tải lại trang
     } else {
         // Nếu người chơi hủy (Cancel), không làm gì cả hoặc thực hiện các hành động khác nếu cần
         // Ví dụ: Hiển thị thông báo hoặc không thực hiện hành động gì cả
     }
 });
-
-function resetGame() {
-    // Xóa tất cả các phần tử con của mảng namedCharacters
-    namedCharacters = [];
-    currentPlayerIndex = 0;
-    // Xóa tất cả các phần tử con của bảng chơi (gameboard)
-    gameboard.innerHTML = '';
-    // Xóa thông tin của tất cả các người chơi hiện đang hiển thị trên bảng
-    const playerContainers = document.querySelectorAll('.player-info');
-    playerContainers.forEach(container => {
-        container.innerHTML = '';
-    });
-
-    // Ẩn bảng chơi
-    gameboard.style.display = 'none';
-
-    // Hiển thị lại cửa sổ chọn nhân vật
-    frameElement.style.display = 'flex'; // Hiển thị khung chọn nhân vật
-    choosePlayerText.style.display = 'block'; // Hiển thị chữ "CHOOSE PLAYER"
-    playButton.style.display = 'block'; // Hiển thị nút "PLAY"
-}
-
 
 // Tạo một biến flag để theo dõi trạng thái của âm thanh
 let isMuted = false;
@@ -430,16 +406,15 @@ function checkPlayerCount(squareElement) {
 let currentPlayerIndex = 0;
 let result = document.querySelector('h1');
 let isDiceRolling = false;
+// let isQuestionAnswered = false;
 
-rollButton.addEventListener("click", function () {
-    if (!isDiceRolling) {
-        if (namedCharacters[currentPlayerIndex].stt === 0 || isQuestionAnswered) {
-            isQuestionAnswered = true;
-            rollTheDice();
-        } else {
-            console.log("hiện thị câu hỏi");
-            showQuestion();
-        }
+
+// Event listener cho nút "Roll Dice"
+rollButton.addEventListener("click", function(){
+    if(namedCharacters[currentPlayerIndex].stt == 0 ){
+        rollTheDice();
+    }else{
+        loadQuestion();
     }
 });
 
@@ -450,7 +425,8 @@ function play() {
 
 function rollTheDice() {
     let currentPlayer = namedCharacters[currentPlayerIndex];
-    if (isQuestionAnswered) {
+    if (!isDiceRolling) {
+        // Quay xúc xắc
         isDiceRolling = true;
         let diceNum1 = document.querySelector(".img1");
         let diceNum2 = document.querySelector(".img2");
@@ -489,46 +465,193 @@ function rollTheDice() {
             }
             isDiceRolling = false;
         }, 2500);
-
     }
 }
 
-function submitAnswer(quest, tl1, tl2, tl3, tl4, right, width) {
-    console.log(" Đã hiện thị câu hỏi");
-    document.getElementById('quiz-form').style.display = "block";
-    document.getElementById('question').getElementsByTagName('p')[0].textContent = quest;
-    document.getElementById('question').style.width = width;
-    document.getElementById('choice1').value = tl1;
-    document.getElementById('choice2').value = tl2;
-    document.getElementById('choice3').value = tl3;
-    document.getElementById('choice4').value = tl4;
 
-    var selectedRadio = document.querySelector('input[name="choice"]:checked');
+let wrapper = document.getElementsByClassName('wrapper')[0];
+const _question = document.getElementById('question');
+const _options = document.querySelector('.quiz-options');
+const _checkBtn = document.getElementById('check-answer');
+const _result = document.getElementById('result');
 
-    if (selectedRadio === null) {
-        addAlert('Please select an answer.');
-    } else if (selectedRadio.value === right) {
-        isQuestionAnswered = true;
-        addRightAlert('Answer is correct!');
-        document.getElementById('quiz-form').style.display = "none";
-        isDiceRolling = false;
-        result.innerHTML = "Correct answer! It's " + namedCharacters[currentPlayerIndex].name + "'s turn.";
+let correctAnswer = "";
+
+/// Display the question and options
+function showQuestion(data) {
+    wrapper.style.display = 'block';
+    _checkBtn.disabled = false;
+    correctAnswer = data.slice(-1)[0].replace(/<br>/g, ''); // Thêm dòng này để xử lý <br>
+    let incorrectAnswers = data.slice(1, -1); // Extract the first four elements as incorrect answers
+    //console.log(incorrectAnswers)
+    let optionsList = shuffleArray([...incorrectAnswers, data.slice(-1)[0]]); // Shuffle the options
+
+    // Check if the first element of the data array is an image path
+    if (data[0].startsWith('../img/')) {
+        // Create an image element and append it to the _question element
+        let questionImage = document.createElement('img');
+        questionImage.src = data[0]; // Set the image source from the first element of the data array
+        questionImage.alt = 'Question Image';
+        _question.innerHTML = '';
+        _question.appendChild(questionImage);
     } else {
-        isQuestionAnswered = false;
-        addAlert('Answer is wrong.');
-        document.getElementById('quiz-form').style.display = "none";
-        currentPlayerIndex++;
-        if (currentPlayerIndex >= namedCharacters.length) {
-            currentPlayerIndex = 0;
+        // Display the question text
+        _question.innerHTML = `${data[0]} <br>`;
+    }
+
+    _options.innerHTML = optionsList.map((option, index) => `
+        <li> <span>${option}</span></li>
+    `).join('');
+
+    selectOption();
+}
+
+// Shuffle the array of options
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Select an option
+function selectOption() {
+    _options.querySelectorAll('li').forEach(option => {
+        option.addEventListener('click', () => {
+            if (_options.querySelector('.selected')) {
+                _options.querySelector('.selected').classList.remove('selected');
+            }
+            option.classList.add('selected');
+        });
+    });
+}
+
+function checkAnswer() {
+    _checkBtn.disabled = true;
+    if (_options.querySelector('.selected')) {
+        let selectedAnswer = _options.querySelector('.selected span').textContent.trim(); // Loại bỏ khoảng trắng hai đầu
+        if (selectedAnswer === correctAnswer.trim()) { // Loại bỏ khoảng trắng hai đầu của correctAnswer
+            _result.innerHTML = `<p style="color: green;"><i class="fas fa-check"></i>Correct Answer!</p>`;
+            result.innerHTML = "Correct answer! It's " + namedCharacters[currentPlayerIndex].name + "'s turn.";
+            rollTheDice();
+        } else {
+            _result.innerHTML = `<p  style="color: red;"><i class="fas fa-times"></i>Incorrect Answer!</p>`;
+            currentPlayerIndex++;
+            if (currentPlayerIndex >= namedCharacters.length) {
+                currentPlayerIndex = 0;
+            }
+            result.innerHTML = ( "Wrong answer! It's " + namedCharacters[currentPlayerIndex].name + "'s TURN");
         }
-        result.innerHTML = "Wrong answer! It's " + namedCharacters[currentPlayerIndex].name + "'s turn.";
-        isDiceRolling = false;
+        setTimeout(() => {
+            wrapper.style.display = 'none'
+            _result.innerHTML = ''; // Reset the content of _result
+        }, 800);            
+    } else {
+        _result.innerHTML = `<p><i class="fas fa-question"></i>Please select an option!</p>`;
+        _checkBtn.disabled = false;
     }
 }
 
-let isQuestionAnswered = false;
+// Array of question data
+const questionData = [
+    ["Kết quả của biểu thức operator.add(3, 5) là gì?", "35", "16", "lỗi", "8"],
+    ["../img/while0.png", "1", "3", "4", "5"],
+    ["Hàm add() trong Python thuộc về module nào?", "math", "itertools", "collections", "operator"],
+    ["Hàm add() trong module operator có chức năng gì?", "Thêm một phần tử vào một danh sách", "Thêm một phần tử vào một tập hợp", "Thêm một giá trị vào một từ điển", "Cộng hai số lại với nhau"],
+    ["Hàm add() có thể dùng với các loại dữ liệu nào sau đây?", "Số nguyên và số thực", "Chuỗi", "Danh sách", "Tất cả các loại trên"],
+    ["Kết quả của biểu thức operator.add(\"hello\", \"world\") là gì?", "hello world", "None of the above", "Lỗi", "helloworld"],
+    ["Kết quả của biểu thức operator.add([1, 2], [3, 4]) là gì?", "None of the above", "Lỗi", " [1, 2, [3, 4]]", "[1, 2, 3, 4]"],
+    ["Kết quả của biểu thức operator.add((1, 2), (3, 4)) là gì?", "((1, 2), (3, 4))", " Lỗi", "None of the above", " (1, 2, 3, 4)"],
+    ["Kết quả của biểu thức operator.add({\"a\": 1}, {\"b\": 2}) là gì?", " {\"a\": 1, \"b\": 2}", " {\"a\": 1}", "{\"b\": 2}", "Lỗi"],
+    ["Điều gì sẽ xảy ra nếu gọi operator.add(5, \"test\")?", "5test", " None of the above", "test5", " Lỗi TypeError"],
+    ["Kết quả của biểu thức operator.sub(-3, -7) là gì?", " -10", "10", "-4", "4"],
+    ["Kết quả của biểu thức operator.sub(0, 5) là gì?", "5", "0", "lỗi", "-5"],
+    ["Điều gì sẽ xảy ra nếu gọi operator.sub(\"hello\", \"world\")?", "helloworld", "hello world", "None of the above", "Lỗi TypeError"],
+    ["Kết quả của biểu thức operator.sub(15, 20) là gì?", "35", "5", "lỗi", "-5"],
+    ["Kết quả của biểu thức operator.sub(7.5, 2.5) là gì?", "10.0", "-5.0", "lỗi", "5.0"],
+    ["Hàm subtract() có thể dùng với các loại dữ liệu nào sau đây?", "Chuỗi", "Danh sách", "Tất cả các loại trên", "Số nguyên và số thực"],
+    ["Kết quả của biểu thức operator.sub(10, 3) là gì?", "13", "-7", "lỗi", "7"],
+    ["Hàm subtract() trong module operator có chức năng gì?", "Trừ một phần tử ra khỏi một danh sách", "Trừ một phần tử ra khỏi một tập hợp", "Trừ một giá trị ra khỏi một từ điển", "Trừ hai số"],
+    ["Câu lệnh if trong Python dùng để làm gì?", "Lặp qua các phần tử trong một danh sách", "Định nghĩa một hàm", " Nhập dữ liệu từ người dùng", "Thực hiện một hành động nếu điều kiện đúng"],
+    ["Cú pháp đúng của một câu lệnh if trong Python là gì?", "if condition<br>do_something", " if (condition) {<br>do_something<br>}", "if (condition):<br>do_something", "if condition: <br>do_something"],
+    ["../img/if0.png", "a is greater", "None", "Lỗi", "b is greater"],
+    ["Điều gì sẽ xảy ra nếu không có lệnh else trong một hàm chứa if?", "Chương trình sẽ lỗi", "Chương trình sẽ bỏ qua các lệnh sau if", "Chương trình sẽ dừng", "Chương trình sẽ tiếp tục chạy bình thường"],
+    ["../img/if1.png", "Positive", "Negative", "None of the above", "Zero"],
+    ["../img/if2.png", "Even", "None", "Lỗi", "Odd"],
+    ["../img/if3.png", "Even", "None", "Lỗi", "Odd"],
+    ["../img/if4.png", "Positive", "None", "Lỗi", "Negative"],
+    ["../img/if5.png", "Minor", "None", "Lỗi", "Adult"],
+    ["Vòng lặp while trong Python dùng để làm gì?", "Lặp qua các phần tử trong một danh sách", "Định nghĩa một hàm", "Nhập dữ liệu từ người dùng", "Lặp lại một khối lệnh khi điều kiện còn đúng"],
+    ["Cú pháp đúng của một vòng lặp while trong Python là gì?", " while (condition):<br>do_something", " while condition<br>do_something", " while (condition) {<br>do_something<br>}", "while condition:<br>do_something"],
+    ["Điều gì sẽ xảy ra nếu điều kiện trong vòng lặp while luôn đúng?", " Vòng lặp sẽ chạy một lần", "Vòng lặp sẽ không chạy", " Chương trình sẽ lỗi", "Vòng lặp sẽ chạy vô hạn"],
+    ["../img/while1.png", "Lỗi", "Blast off!", "3, 2, 1", "3, 2, 1, Blast off!"],
+    ["../img/while2.png", "10", "0", "5", "15"],
+    ["Điều gì sẽ xảy ra nếu không có điều kiện dừng trong vòng lặp while?", "Vòng lặp sẽ chạy một lần", " Vòng lặp sẽ không chạy", " Chương trình sẽ dừng ngay lập tức", "Vòng lặp sẽ chạy vô hạn"],
+    ["../img/while3.png", "4", "10", "8", "24"],
+    ["../img/while4.png", "0", "1", "Lỗi", "-1"],
+    ["../img/while5.png", "[1, 3, 5, 7, 9]", "[2, 4, 6, 8, 10]", "[9, 7, 5, 3, 1]", "[10, 8, 6, 4, 2]"],
+    ["../img/while6.png", "[1, 4, 9]", "[1, 4, 9, 0]", " [0, 1, 4, 9]", " [9, 4, 1]"],
+    ["Phép toán modulo (%) trong Python dùng để làm gì?", " Chia hai số và trả về thương", " Tính lũy thừa của một số", " Tính căn bậc hai của một số", "Chia hai số và trả về phần dư"],
+    ["Kết quả của biểu thức 10 % 3 là gì?", "2", "3", "0", "1"],
+    ["Kết quả của biểu thức 15 % 4 là gì?", "1", "4", "0", "3"],
+    ["Kết quả của biểu thức 7 % 7 là gì?", "7", "1", "14", "0"],
+    ["../img/modulo0.png", "4", "10", "0", "2"],
+    ["../img/modulo1.png", "False", "None", "Lỗi", "True"],
+    ["Điều gì sẽ xảy ra nếu thực hiện phép toán 10 % 0?", " Trả về 10", " Trả về 0", "Trả về None", "Gây ra lỗi ZeroDivisionError"],
+    ["../img/modulo2.png", "False", "None", "Lỗi", "True"],
+    ["../img/modulo3.png", "9", "1", "0", "4"],
+    ["../img/modulo4.png", "1", "-1", "-3", "3"],
+    ["Kết quả của biểu thức 20 % 6 là gì?", "2", "6", "0", "4"],
+    ["../img/modulo5.png", "3", "1", "0", "2"],
+    ["Giai thừa của một số nguyên dương n (ký hiệu n!) là gì?", " Tổng các số từ 1 đến n", "Tích các số từ n đến 1", "Tích các số từ 0 đến n", " Tích các số từ 1 đến n"],
+    ["Kết quả của 5! (5 giai thừa) là gì?", "24", "60", "100", "120"],
+    ["../img/gt0.png", "10", "4", "1", "24"],
+    ["../img/gt1.png", "0", "-1", "Lỗi", "1"],
+    ["../img/gt2.png", "3", "9", "1", "6"],
+    ["../img/gt3.png", "Lỗi vòng lặp vô hạn", " Lỗi giá trị trả về", " Lỗi cú pháp", " Không có lỗi"],
+    ["../img/gt4.png", "5", "25", "720", "120"],
+    ["../img/gt5.png", "360", "180", "60", "720"],
+    ["../img/gt6.png", "1", "0", "-1", "Vòng lặp vô hạn"],
+    ["../img/gt7.png", " Có thể xử lý mà không cần thay đổi", "Không thể xử lý, cần thay đổi logic của vòng lặp", "Không thể xử lý, cần thay đổi cấu trúc hàm", "Không thể xử lý, cần thêm kiểm tra n < 0"],
+    ["../img/gt8.png", "3", "9", "1", "6"],
+    ["../img/gt9.png", "Lỗi vòng lặp vô hạn", "Lỗi giá trị trả về", "Lỗi cú pháp", " Không có lỗi"],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
+    // ["", "", "", "", ""],
 
-function showQuestion() {
-    isQuestionAnswered = true;
-    submitAnswer("What is the capital of France?", "Paris", "Berlin", "London", "Rome", "Paris", "500px");
+    // Add more question data here
+];
+
+// Load the question from the data
+function loadQuestion() {
+    // Randomly select a question from the questionData array
+    const randomIndex = Math.floor(Math.random() * questionData.length);
+    const selectedQuestionData = questionData[randomIndex];
+    showQuestion(selectedQuestionData);
 }
+
+_checkBtn.addEventListener('click', checkAnswer);
+
