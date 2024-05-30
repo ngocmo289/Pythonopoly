@@ -12,6 +12,7 @@ const alertDiv = document.querySelector('.alert');
 const frameElement = document.getElementById('frame');
 const choosePlayerText = document.querySelector('.waviy');
 const DiceDiv = document.querySelector('.totaldice');
+const winner = document.querySelector('.winner');
 const width = 11; // Số lượng ô chiều dài
 const height = 6; // Số lượng ô chiều rộng
 const player1 = 'url(\'../img/pl1.png\')';
@@ -20,11 +21,14 @@ const player3 = 'url(\'../img/pl3.png\')';
 const player4 = 'url(\'../img/pl4.png\')';
 const Ostart = 'url(\'../img/start.png\')';
 const Ostudy = 'url(\'../img/o.png\')';
+const winnerElement = document.getElementById('winner-message');
+
 
 // Lấy tham chiếu đến button "Roll The Dice"
 const rollButton = document.querySelector(".btn");
 
 let audio_bgr = new Audio('../img/bgr_sound.mp3');
+let audio_xx = new Audio('../img/xx.mp3')
 // Gọi hàm phát âm thanh khi trang web đã được tải hoàn tất
 window.addEventListener('load', function () {
     audio_bgr.play(); // Phát âm thanh nền
@@ -378,6 +382,13 @@ function updatePosition(count) {
         // Kiểm tra số lượng nhân vật trên ô mới và áp dụng kích thước tương ứng cho hình ảnh
         checkPlayerCount(newSquareElement);
     } else {
+        gameboard.style.display ="none"
+        DiceDiv.style.display ="none"
+        winner.style.display = "block"
+        winnerElement.textContent = `Congratulations, ${currentPlayer.name}!`;
+        winnerElement.style.display = "block"
+        winner.style.backgroundImage = currentPlayer.image;
+        confetti.start()
         console.log("Người chơi đã hoàn thành trò chơi!");
     }
 }
@@ -426,6 +437,7 @@ function play() {
 function rollTheDice() {
     let currentPlayer = namedCharacters[currentPlayerIndex];
     if (!isDiceRolling) {
+        audio_xx.play();
         // Quay xúc xắc
         isDiceRolling = true;
         let diceNum1 = document.querySelector(".img1");
@@ -612,7 +624,7 @@ const questionData = [
     ["../img/gt3.png", "Lỗi vòng lặp vô hạn", " Lỗi giá trị trả về", " Lỗi cú pháp", " Không có lỗi"],
     ["../img/gt4.png", "5", "25", "720", "120"],
     ["../img/gt5.png", "360", "180", "60", "720"],
-    ["../img/gt6.png", "1", "0", "-1", "Vòng lặp vô hạn"],
+    ["../img/gt6.png", "-1", "0", "1", "Vòng lặp vô hạn"],
     ["../img/gt7.png", " Có thể xử lý mà không cần thay đổi", "Không thể xử lý, cần thay đổi logic của vòng lặp", "Không thể xử lý, cần thay đổi cấu trúc hàm", "Không thể xử lý, cần thêm kiểm tra n < 0"],
     ["../img/gt8.png", "3", "9", "1", "6"],
     ["../img/gt9.png", "Lỗi vòng lặp vô hạn", "Lỗi giá trị trả về", "Lỗi cú pháp", " Không có lỗi"],
