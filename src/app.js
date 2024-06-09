@@ -44,10 +44,11 @@ window.addEventListener('load', function () {
 // Mảng để lưu trữ thông tin của các nhân vật được đặt tên
 let namedCharacters = [];
 
-function Player(name, image, stt) {
+function Player(name, image, stt, round) {
     this.name = name;
     this.image = image;
     this.stt = stt;
+    this.round = round;
 }
 
 
@@ -152,12 +153,14 @@ function addRightAlert(textContent) {
     }, 2000);
 }
 
-
+const countInput = document.querySelector('input[name="count"]');
+var countValue;
 // Bắt sự kiện click vào nút "play"
 playButton.addEventListener("click", function () {
+
     // Lấy tất cả các input trong các phần tử .NV
     const inputs = document.querySelectorAll('.NV input');
-
+    countValue = countInput.value;
     // Đếm số lượng nhân vật đã được đặt tên (đã nhập nội dung) trong các input
     namedCharacters = [];
     inputs.forEach(input => {
@@ -181,16 +184,24 @@ playButton.addEventListener("click", function () {
             console.log('Character Image:', character.image);
         });
     } else {
-        gameboard.style.display = 'flex';
-        createBoard(); // Gọi hàm tạo board khi có ít nhất 2 nhân vật được đặt tên
-        // Sau khi tạo board thành công, ẩn các phần tử không cần thiết
+        if (countValue.trim() == "" || countValue.trim() == "0") {
+            addAlert('Vui lòng chọn ít nhất 1 vòng để tiếp tục trò chơi !');
+        } else {
+            namedCharacters.forEach(character => {
+                character.round = countValue;
+            });
+            gameboard.style.display = 'flex';
+            createBoard(); // Gọi hàm tạo board khi có ít nhất 2 nhân vật được đặt tên
+            // Sau khi tạo board thành công, ẩn các phần tử không cần thiết
+            countInput.style.display = 'none'
+            frameElement.style.display = 'none'; // Ẩn khung chọn nhân vật
+            choosePlayerText.style.display = 'none'; // Ẩn chữ "CHOOSE PLAYER"
+            playButton.style.display = 'none'; // Ẩn nút "PLAY"
+            setup();
+            // To start the game, call play() with the initial currentPlayerIndex
+            play();
+        }
 
-        frameElement.style.display = 'none'; // Ẩn khung chọn nhân vật
-        choosePlayerText.style.display = 'none'; // Ẩn chữ "CHOOSE PLAYER"
-        playButton.style.display = 'none'; // Ẩn nút "PLAY"
-        setup();
-        // To start the game, call play() with the initial currentPlayerIndex
-        play();
     }
 
 });
@@ -294,10 +305,17 @@ function getSquareElementByCoordinates(x, y) {
         const square = squares[i];
         // Tách lớp của phần tử square thành một mảng các chuỗi
         const classes = square.className.split(" ");
+
         // Kiểm tra xem giá trị `x` tồn tại trong lớp của square
         if (classes.includes(`${x}`)) {
-            // Kiểm tra nếu giá trị `y` không tồn tại hoặc lớp của square chính xác
-            if (!y || square.className === `square ${x} ${y}`) {
+            // Nếu y không rỗng, kiểm tra xem square hiện tại có class `square ${x} ${y}` hay không
+            if (y !== "") {
+                if (square.className === `square ${x} ${y}`) {
+                    return square;
+                }
+            }
+            // Nếu y rỗng, kiểm tra xem square hiện tại chỉ có 1 class
+            else if (classes.length === 2) {
                 return square;
             }
         }
@@ -356,47 +374,73 @@ function removePlayerFromSquare(quare, playerToRemove) {
     });
 }
 
+function updatePlayerPosition(currentPlayer, new_stt) {
+    // Tạo phần tử div để hiển thị thông tin người chơi
+    var playerDiv = document.createElement('div');
+    playerDiv.classList.add('player-info');
+
+    // Tạo phần tử div cho hình ảnh người chơi
+    var playerImage = document.createElement('div');
+    playerImage.classList.add('player-image');
+    playerImage.style.backgroundImage = currentPlayer.image;
+
+    // Tạo phần tử span cho tên người chơi
+    var playerName = document.createElement('span');
+    playerName.textContent = currentPlayer.name;
+
+    // Thêm hình ảnh và tên vào phần tử div
+    playerDiv.appendChild(playerImage);
+    playerDiv.appendChild(playerName);
+
+    // Lấy ô mới trên bàn cờ
+    var newSquare = quare[new_stt];
+    var newSquareElement = getSquareElementByCoordinates(newSquare.x, newSquare.y);
+
+    // Thêm phần tử div người chơi vào ô mới
+    if (newSquareElement) {
+        newSquareElement.appendChild(playerDiv);
+        currentPlayer.stt = new_stt;
+    } else {
+        console.log("Không tìm thấy phần tử ô mới!");
+    }
+
+    // Kiểm tra số lượng nhân vật trên ô mới và áp dụng kích thước tương ứng cho hình ảnh
+    checkPlayerCount(newSquareElement);
+}
+
 function updatePosition(count) {
+    const countNV = namedCharacters.length;
+    
     var currentPlayer = namedCharacters[currentPlayerIndex];
-    console.log("count: " + count + "currrent: " + currentPlayerIndex);
+    console.log("count: " + count + " currrent: " + currentPlayerIndex);
     var new_stt = currentPlayer.stt + count;
     if (new_stt < quare.length) {
-        var playerDiv = document.createElement('div');
-        playerDiv.classList.add('player-info');
-        var playerImage = document.createElement('div');
-        playerImage.classList.add('player-image');
-        playerImage.style.backgroundImage = currentPlayer.image;
-        var playerName = document.createElement('span');
-        playerName.textContent = currentPlayer.name;
-        playerDiv.appendChild(playerImage);
-        playerDiv.appendChild(playerName);
-        var newSquare = quare[new_stt];
-        var newSquareElement = getSquareElementByCoordinates(newSquare.x, newSquare.y);
-        if (newSquareElement) {
-            newSquareElement.appendChild(playerDiv);
-            currentPlayer.stt = new_stt;
-        } else {
-            console.log("Không tìm thấy phần tử ô mới!");
-        }
-
-        // Kiểm tra số lượng nhân vật trên ô mới và áp dụng kích thước tương ứng cho hình ảnh
-        checkPlayerCount(newSquareElement);
+        updatePlayerPosition(currentPlayer, new_stt);
     } else {
-        gameboard.style.display ="none"
-        DiceDiv.style.display ="none"
-        winner.style.display = "block"
-        winnerElement.textContent = `Congratulations, ${currentPlayer.name}!`;
-        winnerElement.style.display = "block"
-        winner.style.backgroundImage = currentPlayer.image;
-        confetti.start()
-        console.log("Người chơi đã hoàn thành trò chơi!");
+        if (currentPlayer.round != 1) {
+            var vd1 = quare.length - currentPlayer.stt;
+            var newstt = count - vd1;
+            updatePlayerPosition(currentPlayer, newstt);
+            currentPlayer.round--;
+            round.innerHTML = ("Remaining rounds: " + currentPlayer.round);
+        }
+        else {
+            if(dem != countNV){
+                dem++;
+                if(dem == 1){
+                    var winNV = currentPlayer;
+                }
+                currentPlayer.round = 0;
+                updatePlayerPosition(currentPlayer, 0)
+            }
+        }
     }
 }
 
 function checkPlayerCount(squareElement) {
     var playerDivs = squareElement.getElementsByClassName('player-info');
     var playerCount = playerDivs.length;
-
+    
     for (var i = 0; i < playerDivs.length; i++) {
         var playerDiv = playerDivs[i];
 
@@ -412,25 +456,50 @@ function checkPlayerCount(squareElement) {
             playerDiv.style.height = '72.5px';
         }
     }
+
+    if (playerCount == namedCharacters.length) {
+        let allPlayersFinished = true;
+        namedCharacters.forEach(character => {
+            if (character.round !== 0) {
+                allPlayersFinished = false;
+                return; // Exit the forEach loop
+            }
+        });
+
+        if (allPlayersFinished) {
+            setTimeout(() => {
+                gameboard.style.display = "none"
+                DiceDiv.style.display = "none"
+                winner.style.display = "block"
+                winnerElement.textContent = `Congratulations, ${winNV.name}!`;
+                winnerElement.style.display = "block"
+                winner.style.backgroundImage = winNV.image;
+                confetti.start()
+                console.log("Người chơi đã hoàn thành trò chơi!");
+            }, 1000);
+        }
+    }
 }
 
 let currentPlayerIndex = 0;
+let round = document.querySelector('.totaldice h2');
 let result = document.querySelector('h1');
 let isDiceRolling = false;
 // let isQuestionAnswered = false;
 
 
 // Event listener cho nút "Roll Dice"
-rollButton.addEventListener("click", function(){
-    if(namedCharacters[currentPlayerIndex].stt == 0 ){
+rollButton.addEventListener("click", function () {
+    if (namedCharacters[currentPlayerIndex].stt == 0) {
         rollTheDice();
-    }else{
+    } else {
         loadQuestion();
     }
 });
 
 function play() {
     let currentPlayer = namedCharacters[currentPlayerIndex];
+    round.innerHTML = ("Remaining rounds: " + currentPlayer.round);
     result.innerHTML = (currentPlayer.name + "'s TURN");
 }
 
@@ -463,7 +532,19 @@ function rollTheDice() {
                 var number = namedCharacters[currentPlayerIndex].stt;
                 removePlayerFromSquare(quare[number], namedCharacters[currentPlayerIndex]);
                 updatePosition(randomNumber1 + randomNumber2);
-                result.innerHTML = (currentPlayer.name + "'s CONTINUE");
+                if(currentPlayer.round==0){
+                    // Find the next player who hasn't finished the game (round == 0)
+                    let nextPlayerIndex = (currentPlayerIndex + 1) % namedCharacters.length;
+                    while (namedCharacters[nextPlayerIndex].round === 0 && nextPlayerIndex !== currentPlayerIndex) {
+                        nextPlayerIndex = (nextPlayerIndex + 1) % namedCharacters.length;
+                    }
+                    // Update the current player index
+                    currentPlayerIndex = nextPlayerIndex;
+                    result.innerHTML = (namedCharacters[currentPlayerIndex].name + "'s TURN");
+                    round.innerHTML = ("Remaining rounds: " + namedCharacters[currentPlayerIndex].round)
+                }else{
+                    result.innerHTML = (currentPlayer.name + "'s CONTINUE");
+                }
             } else {
                 isQuestionAnswered = false; // Reset isQuestionAnswered to false
                 var number = namedCharacters[currentPlayerIndex].stt;
@@ -473,7 +554,18 @@ function rollTheDice() {
                 if (currentPlayerIndex >= namedCharacters.length) {
                     currentPlayerIndex = 0;
                 }
+                else if(currentPlayerIndex.round==0){
+                    // Find the next player who hasn't finished the game (round == 0)
+                    let nextPlayerIndex = (currentPlayerIndex + 1) % namedCharacters.length;
+                    while (namedCharacters[nextPlayerIndex].round === 0 && nextPlayerIndex !== currentPlayerIndex) {
+                        nextPlayerIndex = (nextPlayerIndex + 1) % namedCharacters.length;
+                    }
+                    // Update the current player index
+                    currentPlayerIndex = nextPlayerIndex;
+                }
                 result.innerHTML = (namedCharacters[currentPlayerIndex].name + "'s TURN");
+                round.innerHTML = ("Remaining rounds: " + namedCharacters[currentPlayerIndex].round)
+
             }
             isDiceRolling = false;
         }, 2500);
@@ -545,6 +637,7 @@ function checkAnswer() {
         let selectedAnswer = _options.querySelector('.selected span').textContent.trim(); // Loại bỏ khoảng trắng hai đầu
         if (selectedAnswer === correctAnswer.trim()) { // Loại bỏ khoảng trắng hai đầu của correctAnswer
             _result.innerHTML = `<p style="color: green;"><i class="fas fa-check"></i>Correct Answer!</p>`;
+            round.innerHTML = ("Remaining rounds: " + namedCharacters[currentPlayerIndex].round)
             result.innerHTML = "Correct answer! It's " + namedCharacters[currentPlayerIndex].name + "'s turn.";
             rollTheDice();
         } else {
@@ -553,12 +646,22 @@ function checkAnswer() {
             if (currentPlayerIndex >= namedCharacters.length) {
                 currentPlayerIndex = 0;
             }
-            result.innerHTML = ( "Wrong answer! It's " + namedCharacters[currentPlayerIndex].name + "'s TURN");
+            else if(currentPlayerIndex.round==0){
+                // Find the next player who hasn't finished the game (round == 0)
+                let nextPlayerIndex = (currentPlayerIndex + 1) % namedCharacters.length;
+                while (namedCharacters[nextPlayerIndex].round === 0 && nextPlayerIndex !== currentPlayerIndex) {
+                    nextPlayerIndex = (nextPlayerIndex + 1) % namedCharacters.length;
+                }
+                // Update the current player index
+                currentPlayerIndex = nextPlayerIndex;
+            }
+            round.innerHTML = ("Remaining rounds: " + namedCharacters[currentPlayerIndex].round)
+            result.innerHTML = ("Wrong answer! It's " + namedCharacters[currentPlayerIndex].name + "'s TURN");
         }
         setTimeout(() => {
             wrapper.style.display = 'none'
             _result.innerHTML = ''; // Reset the content of _result
-        }, 800);            
+        }, 800);
     } else {
         _result.innerHTML = `<p><i class="fas fa-question"></i>Please select an option!</p>`;
         _checkBtn.disabled = false;
@@ -614,7 +717,7 @@ const questionData = [
     ["../img/modulo2.png", "False", "None", "Lỗi", "True"],
     ["../img/modulo3.png", "9", "1", "0", "4"],
     ["../img/modulo4.png", "1", "-1", "-3", "3"],
-    ["Kết quả của biểu thức 20 % 6 là gì?", "2", "6", "0", "4"],
+    ["Kết quả của biểu thức 20 % 6 là gì?", "4", "6", "0", "2"],
     ["../img/modulo5.png", "3", "1", "0", "2"],
     ["Giai thừa của một số nguyên dương n (ký hiệu n!) là gì?", " Tổng các số từ 1 đến n", "Tích các số từ n đến 1", "Tích các số từ 0 đến n", " Tích các số từ 1 đến n"],
     ["Kết quả của 5! (5 giai thừa) là gì?", "24", "60", "100", "120"],
@@ -624,7 +727,7 @@ const questionData = [
     ["../img/gt3.png", "Lỗi vòng lặp vô hạn", " Lỗi giá trị trả về", " Lỗi cú pháp", " Không có lỗi"],
     ["../img/gt4.png", "5", "25", "720", "120"],
     ["../img/gt5.png", "360", "180", "60", "720"],
-    ["../img/gt6.png", "-1", "0", "1", "Vòng lặp vô hạn"],
+    ["../img/gt6.png", "-1", "0","Vòng lặp vô hạn", "1"],
     ["../img/gt7.png", " Có thể xử lý mà không cần thay đổi", "Không thể xử lý, cần thay đổi logic của vòng lặp", "Không thể xử lý, cần thay đổi cấu trúc hàm", "Không thể xử lý, cần thêm kiểm tra n < 0"],
     ["../img/gt8.png", "3", "9", "1", "6"],
     ["../img/gt9.png", "Lỗi vòng lặp vô hạn", "Lỗi giá trị trả về", "Lỗi cú pháp", " Không có lỗi"],

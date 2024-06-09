@@ -243,9 +243,23 @@ input[type=text] {
     box-sizing: border-box;
 }
 
-input[type=submit] {
+
+input[name=count] {
     position: absolute;
     top: 75%;
+    left: 50%;
+    width: 15%;
+    transform: translate(-50%, -50%);
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+}
+
+
+input[type=submit] {
+    position: absolute;
+    top:83%;
     left: 50%;
     width: 10%;
     transform: translate(-50%, -50%);
@@ -316,6 +330,15 @@ h1 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.totaldice h2{
+    margin: 10px;
+    font-family: "Lobster", cursive;
+    text-shadow: 5px 0 #232931;
+    font-size: 3.5rem;
+    color: #4ecca3;
     text-align: center;
 }
 
